@@ -1,0 +1,78 @@
+name: Poll & Notify
+
+on:
+  schedule:
+    # JST 8:00-20:00 平日毎時 (UTC 23:00-11:00 → Mon-Fri)
+    - cron: "0 23 * * 0-4"   # Mon-Fri JST 08:00
+    - cron: "0 0 * * 1-5"    # Mon-Fri JST 09:00
+    - cron: "0 1 * * 1-5"    # Mon-Fri JST 10:00
+    - cron: "0 2 * * 1-5"    # Mon-Fri JST 11:00
+    - cron: "0 3 * * 1-5"    # Mon-Fri JST 12:00
+    - cron: "0 4 * * 1-5"    # Mon-Fri JST 13:00
+    - cron: "0 5 * * 1-5"    # Mon-Fri JST 14:00
+    - cron: "0 6 * * 1-5"    # Mon-Fri JST 15:00
+    - cron: "0 7 * * 1-5"    # Mon-Fri JST 16:00
+    - cron: "0 8 * * 1-5"    # Mon-Fri JST 17:00
+    - cron: "0 9 * * 1-5"    # Mon-Fri JST 18:00
+    - cron: "0 10 * * 1-5"   # Mon-Fri JST 19:00
+    - cron: "0 11 * * 1-5"   # Mon-Fri JST 20:00
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "取得ソース (all / kokkai / gian / shitsumon / pubcom / kakugi)"
+        required: false
+        default: "all"
+
+concurrency:
+  group: poll
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run poll
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          SOURCE="${{ github.event.inputs.source || 'all' }}"
+          python main.py poll --source "$SOURCE"
+
+      - name: Commit DB if changed
+        run: |
+          git config user.name  "policy-radar[bot]"
+          git config user.email "policy-radar[bot]@users.noreply.github.com"
+          if ! git diff --quiet data/radar.db 2>/dev/null; then
+            git add data/radar.db
+            git commit -m "chore(data): radar.db update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          else
+            echo "No DB changes"
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
+            curl -s -X POST "$SLACK_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d "{\"text\":\":warning: *政策レーダー poll 失敗* (<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|ログを確認>)\"}"
+          fi

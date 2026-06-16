@@ -1,0 +1,74 @@
+name: Daily Digest & Site Build
+
+on:
+  schedule:
+    - cron: "0 22 * * *"   # JST 07:00 毎日
+  workflow_dispatch:
+
+concurrency:
+  group: digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run digest (L3 AI判定)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python main.py digest
+
+      - name: Build static site
+        run: python site/build.py
+
+      - name: Commit DB if changed
+        run: |
+          git config user.name  "policy-radar[bot]"
+          git config user.email "policy-radar[bot]@users.noreply.github.com"
+          if ! git diff --quiet data/radar.db 2>/dev/null; then
+            git add data/radar.db
+            git commit -m "chore(data): radar.db update (digest) $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public/
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
+            curl -s -X POST "$SLACK_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d "{\"text\":\":warning: *政策レーダー digest/deploy 失敗* (<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|ログを確認>)\"}"
+          fi
