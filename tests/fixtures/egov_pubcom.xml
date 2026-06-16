@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rdf:RDF xmlns="http://purl.org/rss/1.0/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <channel rdf:about="https://public-comment.e-gov.go.jp/rss/pcm_list.xml">
+    <title>パブリックコメント・意見募集案件一覧</title>
+    <description>パブリックコメントでの意見募集案件一覧です。</description>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTLIST&amp;Mode=0</link>
+    <items>
+      <rdf:Seq>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210722&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210725&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=550004371&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260088&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260714&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=595226025&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=195260018&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260813&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=620126015&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260086&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210724&amp;Mode=0"/>
+        <rdf:li rdf:resource="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210726&amp;Mode=0"/>
+      </rdf:Seq>
+    </items>
+    <dc:date>2026-06-16T09:01:05+0900</dc:date>
+  </channel>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210722&amp;Mode=0">
+    <title>令和7年度電波の利用状況調査に係る電波の有効利用の程度の評価結果（案）に対する意見募集（各種無線システム及び公共業務用無線局）</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210722&amp;Mode=0</link>
+    <description>案の公示日：2026/06/16&lt;br/&gt;受付締切日時：2026/07/15 23:59&lt;br/&gt;カテゴリー：電気通信&lt;br/&gt;問合せ先（所管省庁・部局名等）：総務省総合通信基盤局総務課
+Tel:03-5253-5988&lt;br/&gt;</description>
+    <dc:date>2026-06-15T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210725&amp;Mode=0">
+    <title>「電気通信役務の安全・信頼性の確保に係るモニタリングの基本方針（案）」及び「電気通信役務の安全・信頼性の確保に係るモニタリングの年次計画（令和８年度）（案）」に対する意見募集</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210725&amp;Mode=0</link>
+    <description>案の公示日：2026/06/16&lt;br/&gt;受付締切日時：2026/07/03 23:59&lt;br/&gt;カテゴリー：電気通信&lt;br/&gt;問合せ先（所管省庁・部局名等）：総務省　総合通信基盤局　電気通信事業部 
+安全・信頼性対策課 
+（TEL：03-5253-5858）&lt;br/&gt;</description>
+    <dc:date>2026-06-15T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=550004371&amp;Mode=0">
+    <title>「外国人の育成就労の適正な実施及び育成就労外国人の保護に関する法律施行規則の規定に基づき林業分野に特有の事情に鑑みて告示で定める基準等の一部を改正する告示案」についての意見・情報の募集について</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=550004371&amp;Mode=0</link>
+    <description>案の公示日：2026/06/16&lt;br/&gt;受付締切日時：2026/07/15 23:59&lt;br/&gt;カテゴリー：林業&lt;br/&gt;問合せ先（所管省庁・部局名等）：林野庁林政部経営課林業労働・経営対策室林業人材育成班 
+電話：03-3502-8111（内線6085）&lt;br/&gt;</description>
+    <dc:date>2026-06-15T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260088&amp;Mode=0">
+    <title>送出労働者に対する不合理な待遇の禁止等に関する指針の一部を改正する件（案）に関する御意見の募集について</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260088&amp;Mode=0</link>
+    <description>案の公示日：2026/06/16&lt;br/&gt;受付締切日時：2026/07/15 23:59&lt;br/&gt;カテゴリー：労働&lt;br/&gt;問合せ先（所管省庁・部局名等）：職業安定局雇用開発企画課建設・港湾対策室
+03-5253-1111(内線：5803)&lt;br/&gt;</description>
+    <dc:date>2026-06-15T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260714&amp;Mode=0">
+    <title>マンションの管理の適正化の推進に関する法律施行規則及び長期優良住宅の普及の促進に関する法律施行規則の一部を改正する省令案に関する意見募集について</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260714&amp;Mode=0</link>
+    <description>案の公示日：2026/06/16&lt;br/&gt;受付締切日時：2026/07/16 00:00&lt;br/&gt;カテゴリー：建築、住宅&lt;br/&gt;問合せ先（所管省庁・部局名等）：住宅局参事官（マンション・賃貸住宅担当）付&lt;br/&gt;</description>
+    <dc:date>2026-06-15T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=595226025&amp;Mode=0">
+    <title>旧簡易ガスみなしガス小売事業者の指定旧供給地点の指定の解除（関東経済産業局所管分）に対する意見の募集について</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=595226025&amp;Mode=0</link>
+    <description>案の公示日：2026/06/15&lt;br/&gt;受付締切日時：2026/07/15 23:59&lt;br/&gt;カテゴリー：工業&lt;br/&gt;問合せ先（所管省庁・部局名等）：関東経済産業局資源エネルギー環境部ガス事業課　
+旧簡易ガスみなしガス小売事業者の指定旧供給地点の指定の解除　意見募集担当
+TEL：048－600-0413&lt;br/&gt;</description>
+    <dc:date>2026-06-14T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=195260018&amp;Mode=0">
+    <title>「調達におけるネイチャーポジティブの実践のためのガイドライン（案）」に関する意見募集（パブリック・コメント）について</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=195260018&amp;Mode=0</link>
+    <description>案の公示日：2026/06/15&lt;br/&gt;受付締切日時：2026/07/02 00:00&lt;br/&gt;カテゴリー：環境保全&lt;br/&gt;問合せ先（所管省庁・部局名等）：環境省自然環境局自然環境計画課生物多様性主流化室&lt;br/&gt;</description>
+    <dc:date>2026-06-14T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260813&amp;Mode=0">
+    <title>御岳登山鉄道株式会社の鉄道事業の旅客運賃上限変更認可申請について</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260813&amp;Mode=0</link>
+    <description>案の公示日：2026/06/15&lt;br/&gt;受付締切日時：2026/06/30 00:00&lt;br/&gt;カテゴリー：陸運&lt;br/&gt;問合せ先（所管省庁・部局名等）：国土交通省関東運輸局鉄道部監理課意見募集担当（電話番号０４５－２１１－７２３９）&lt;br/&gt;</description>
+    <dc:date>2026-06-14T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=620126015&amp;Mode=0">
+    <title>エネルギーの使用の合理化及び非化石エネルギーへの転換等に関する法律施行令の一部を改正する政令案に対する意見公募要領</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=620126015&amp;Mode=0</link>
+    <description>案の公示日：2026/06/15&lt;br/&gt;受付締切日時：2026/07/15 23:59&lt;br/&gt;カテゴリー：その他&lt;br/&gt;問合せ先（所管省庁・部局名等）：資源エネルギー庁 省エネルギー・新エネルギー部 省エネルギー課 トップランナー制度担当 あて&lt;br/&gt;</description>
+    <dc:date>2026-06-14T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260086&amp;Mode=0">
+    <title>医薬品、医療機器等の品質、有効性及び安全性の確保等に関する法律施行規則第二百十六条の二第一項の規定に基づき厚生労働大臣が指定する医薬品及び期間の一部を改正する件（案）に関する御意見の募集について</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260086&amp;Mode=0</link>
+    <description>案の公示日：2026/06/15&lt;br/&gt;受付締切日時：2026/07/16 00:00&lt;br/&gt;カテゴリー：厚生&lt;br/&gt;問合せ先（所管省庁・部局名等）：医薬局　監視指導・麻薬対策課&lt;br/&gt;</description>
+    <dc:date>2026-06-14T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210724&amp;Mode=0">
+    <title>地方自治法施行令の一部を改正する政令（案）に対する意見募集</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210724&amp;Mode=0</link>
+    <description>案の公示日：2026/06/13&lt;br/&gt;受付締切日時：2026/07/13 23:59&lt;br/&gt;カテゴリー：地方自治&lt;br/&gt;問合せ先（所管省庁・部局名等）：総務省自治行政局行政課
+TEL:03-5253-5510
+FAX:03-5253-5511&lt;br/&gt;</description>
+    <dc:date>2026-06-12T15:00:Z</dc:date>
+  </item>
+  <item rdf:about="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210726&amp;Mode=0">
+    <title>国際海底ケーブルの防護等に関する検討会 報告書（案）</title>
+    <link>https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210726&amp;Mode=0</link>
+    <description>案の公示日：2026/06/13&lt;br/&gt;受付締切日時：2026/06/30 23:59&lt;br/&gt;カテゴリー：電気通信&lt;br/&gt;問合せ先（所管省庁・部局名等）：総務省総合通信基盤局電気通信事業部事業政策課
+TEL:03-5253-5947&lt;br/&gt;</description>
+    <dc:date>2026-06-12T15:00:Z</dc:date>
+  </item>
+</rdf:RDF>
