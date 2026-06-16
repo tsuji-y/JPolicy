@@ -32,6 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - uses: actions/checkout@v4
@@ -54,17 +60,29 @@ jobs:
           SOURCE="${{ github.event.inputs.source || 'all' }}"
           python main.py poll --source "$SOURCE"
 
-      - name: Commit DB if changed
+      - name: Build static site
+        run: python site/build.py
+
+      - name: Commit DB and site if changed
         run: |
           git config user.name  "policy-radar[bot]"
           git config user.email "policy-radar[bot]@users.noreply.github.com"
-          if ! git diff --quiet data/radar.db 2>/dev/null; then
-            git add data/radar.db
-            git commit -m "chore(data): radar.db update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git add data/radar.db public/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(data): update $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             git push
           else
-            echo "No DB changes"
+            echo "No changes"
           fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public/
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Notify on failure
         if: failure()

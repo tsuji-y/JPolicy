@@ -3,6 +3,6 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
-data/*.db
+# data/*.db はリポジトリで永続化するためトラッキング対象
 *.egg-info/
 .DS_Store
