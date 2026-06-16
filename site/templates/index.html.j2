@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>政策レーダー</title>
+<style>
+:root {
+  --bg: #faf8f4;
+  --text: #1a1a1a;
+  --border-heavy: #1a1a1a;
+  --border-light: #c8b89a;
+  --shugiin: #2e6b3e;
+  --sangiin: #8b1a2d;
+  --kakugi: #c25a00;
+  --new-bg: #fff8e6;
+  --status-bg: #e8f0e8;
+  --font-serif: "Times New Roman", "游明朝", "YuMincho", serif;
+  --font-mono: "Courier New", monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.6;
+}
+header {
+  border-top: 4px double var(--border-heavy);
+  border-bottom: 4px double var(--border-heavy);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+header h1 { font-size: 22px; letter-spacing: 0.1em; }
+header .updated { font-size: 11px; color: #666; font-family: var(--font-mono); }
+.layout { display: grid; grid-template-columns: 1fr 260px; gap: 0; min-height: calc(100vh - 80px); }
+main { padding: 20px 24px; border-right: 2px solid var(--border-light); }
+aside { padding: 16px 16px; background: #f3f0ea; }
+
+h2 { font-size: 14px; letter-spacing: 0.08em; border-bottom: 1px solid var(--border-heavy);
+     padding-bottom: 4px; margin: 20px 0 10px; }
+h2:first-child { margin-top: 0; }
+h3 { font-size: 13px; margin: 14px 0 6px; }
+
+/* アラートカード */
+.alert-card {
+  border-left: 3px solid var(--border-heavy);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: var(--new-bg);
+}
+.alert-card.status-change { background: var(--status-bg); }
+.alert-card .meta { font-size: 11px; color: #666; font-family: var(--font-mono); }
+.alert-card .title a { color: var(--text); text-decoration: none; font-weight: bold; }
+.alert-card .title a:hover { text-decoration: underline; }
+.badge {
+  display: inline-block; padding: 1px 6px; border-radius: 2px;
+  font-size: 10px; font-family: var(--font-mono); margin-right: 4px;
+}
+.badge.kokkai { background: #1a3a6b; color: #fff; }
+.badge.gian   { background: var(--shugiin); color: #fff; }
+.badge.shitsumon { background: var(--sangiin); color: #fff; }
+.badge.pubcom { background: #555; color: #fff; }
+.badge.kakugi { background: var(--kakugi); color: #fff; }
+.badge.new    { background: #b5540e; color: #fff; }
+.badge.status { background: #2a5f2a; color: #fff; }
+
+/* 議案パイプライン */
+.bill-tracker { margin-bottom: 12px; }
+.bill-tracker .bill-title {
+  font-size: 12px; margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pipeline {
+  display: flex; gap: 0; font-size: 10px; font-family: var(--font-mono);
+}
+.pipeline-step {
+  flex: 1; text-align: center; padding: 3px 2px;
+  border: 1px solid var(--border-light);
+  border-right: none; background: #ece9e1; color: #888;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pipeline-step:last-child { border-right: 1px solid var(--border-light); }
+.pipeline-step.cur {
+  background: var(--shugiin); color: #fff; font-weight: bold;
+}
+.pipeline-step.done { background: #c8d8c8; color: #444; }
+.pipeline-step.seiristu { background: #8b1a2d; color: #fff; font-weight: bold; }
+
+/* ダイジェスト */
+.digest-item { padding: 8px 0; border-bottom: 1px dashed var(--border-light); }
+.digest-item:last-child { border-bottom: none; }
+.digest-item .summary { font-size: 12px; color: #444; margin-top: 3px; }
+.digest-item .title a { font-size: 13px; color: var(--text); text-decoration: none; }
+.digest-item .title a:hover { text-decoration: underline; }
+
+/* サイドバー */
+.sidebar-section { margin-bottom: 20px; }
+.sidebar-section h3 {
+  font-size: 11px; letter-spacing: 0.06em; color: #666;
+  border-bottom: 1px solid var(--border-light); padding-bottom: 3px;
+  margin-bottom: 8px;
+}
+.kw-tag {
+  display: inline-block; margin: 2px;
+  padding: 2px 6px; background: #fff; border: 1px solid var(--border-light);
+  font-size: 11px; border-radius: 2px;
+}
+.source-status { font-size: 11px; font-family: var(--font-mono); margin-bottom: 3px; }
+.source-status .ok  { color: var(--shugiin); }
+.source-status .err { color: var(--sangiin); }
+
+/* 凡例 */
+.legend { display: flex; gap: 12px; font-size: 11px; flex-wrap: wrap; margin-bottom: 8px; }
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+footer {
+  border-top: 2px double var(--border-heavy);
+  padding: 8px 24px; font-size: 11px; color: #666;
+  font-family: var(--font-mono);
+  display: flex; gap: 20px; flex-wrap: wrap;
+}
+footer a { color: #666; }
+.empty-note { color: #999; font-size: 12px; font-style: italic; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>政策レーダー</h1>
+  <span class="updated">最終更新: {{ updated_at }}</span>
+</header>
+
+<div class="layout">
+<main>
+
+<!-- 凡例 -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#1a3a6b"></div>国会会議録</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--shugiin)"></div>衆院提出（緑）</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--sangiin)"></div>参院提出（臙脂）</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--kakugi)"></div>閣議（朱）</div>
+</div>
+
+<!-- 即時アラート -->
+<h2>即時アラート（直近24時間）</h2>
+{% if alerts %}
+  {% for ev in alerts %}
+  <div class="alert-card {% if ev.kind == 'status_changed' %}status-change{% endif %}">
+    <div class="meta">
+      <span class="badge {{ ev.source }}">{{ ev.source }}</span>
+      <span class="badge {% if ev.kind == 'new' %}new{% else %}status{% endif %}">
+        {% if ev.kind == 'new' %}新着{% else %}状態変化{% endif %}
+      </span>
+      {{ ev.created_at[:16] }}
+      {% if ev.kind == 'status_changed' %}｜{{ ev.old_status }} → {{ ev.new_status }}{% endif %}
+    </div>
+    <div class="title">
+      {% if ev.url %}<a href="{{ ev.url }}" target="_blank" rel="noopener">{{ ev.title }}</a>{% else %}{{ ev.title }}{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <p class="empty-note">直近24時間のアラートはありません</p>
+{% endif %}
+
+<!-- 議案トラッカー -->
+<h2>議案トラッカー</h2>
+{% if bills %}
+  {% for bill in bills %}
+  <div class="bill-tracker">
+    <div class="bill-title">
+      <span class="badge {% if bill.org == '衆議院' %}gian{% else %}shitsumon{% endif %}">{{ bill.org[:2] }}</span>
+      {% if bill.url %}<a href="{{ bill.url }}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none;">{{ bill.title }}</a>{% else %}{{ bill.title }}{% endif %}
+    </div>
+    <div class="pipeline">
+      {% set steps = [('提出','submitted'),('委員会付託','委員会付託'),('委員会可決','委員会可決'),('本会議可決','衆院可決'),('他院送付','本院議了'),('成立','成立')] %}
+      {% for label, key in steps %}
+        {% if bill.status == '成立' and key == '成立' %}
+          <div class="pipeline-step seiristu">{{ label }}</div>
+        {% elif bill.status == key or (key == 'submitted' and bill.status == '提出') %}
+          <div class="pipeline-step cur">{{ label }}</div>
+        {% elif loop.index < steps|length and loop.index <= ['submitted','委員会付託','委員会可決','衆院可決','本院議了','成立'].index(bill.status) + 1 %}
+          <div class="pipeline-step done">{{ label }}</div>
+        {% else %}
+          <div class="pipeline-step">{{ label }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <p class="empty-note">追跡中の議案はありません（キーワードにヒットした議案が表示されます）</p>
+{% endif %}
+
+<!-- 日次ダイジェスト -->
+<h2>直近ダイジェスト（AI 関連度判定）</h2>
+{% if digest_items %}
+  {% for item in digest_items %}
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge {{ item.source }}">{{ item.source }}</span>
+      <span class="badge" style="background:#888;color:#fff;">L{{ item.layer[1] }}</span>
+      {{ item.published_at or '' }}
+    </div>
+    <div class="title">
+      {% if item.url %}<a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.title }}</a>{% else %}{{ item.title }}{% endif %}
+    </div>
+    {% if item.summary %}<div class="summary">{{ item.summary }}</div>{% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+  <p class="empty-note">ダイジェストアイテムはありません</p>
+{% endif %}
+
+</main>
+
+<aside>
+  <!-- 監視キーワード -->
+  <div class="sidebar-section">
+    <h3>L1 監視キーワード</h3>
+    {% for kw in l1_keywords %}
+    <span class="kw-tag">{{ kw }}</span>
+    {% endfor %}
+  </div>
+
+  <div class="sidebar-section">
+    <h3>L2 同義語（主要）</h3>
+    {% for canonical, syns in synonyms.items() %}
+    <div style="font-size:11px;margin-bottom:4px;">
+      <strong>{{ canonical }}</strong><br>
+      {{ syns[:3] | join('、') }}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- データソース状態 -->
+  <div class="sidebar-section">
+    <h3>データソース 最終取得</h3>
+    {% for src in source_status %}
+    <div class="source-status">
+      <span class="{% if src.ok %}ok{% else %}err{% endif %}">{% if src.ok %}●{% else %}×{% endif %}</span>
+      {{ src.name }} {{ src.last_fetch }}
+    </div>
+    {% endfor %}
+  </div>
+</aside>
+</div>
+
+<footer>
+  <span>最終更新: {{ updated_at }}</span>
+  <a href="https://kokkai.ndl.go.jp/" target="_blank" rel="noopener">国会会議録</a>
+  <a href="https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/menu.htm" target="_blank" rel="noopener">衆議院議案</a>
+  <a href="https://www.sangiin.go.jp/japanese/joho1/kousei/gian/221/gian.htm" target="_blank" rel="noopener">参議院議案</a>
+  <a href="https://public-comment.e-gov.go.jp/" target="_blank" rel="noopener">e-Govパブコメ</a>
+  <a href="https://www.kantei.go.jp/jp/kakugi/index.html" target="_blank" rel="noopener">閣議決定</a>
+</footer>
+
+</body>
+</html>

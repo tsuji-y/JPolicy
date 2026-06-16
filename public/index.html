@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>政策レーダー</title>
+<style>
+:root {
+  --bg: #faf8f4;
+  --text: #1a1a1a;
+  --border-heavy: #1a1a1a;
+  --border-light: #c8b89a;
+  --shugiin: #2e6b3e;
+  --sangiin: #8b1a2d;
+  --kakugi: #c25a00;
+  --new-bg: #fff8e6;
+  --status-bg: #e8f0e8;
+  --font-serif: "Times New Roman", "游明朝", "YuMincho", serif;
+  --font-mono: "Courier New", monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.6;
+}
+header {
+  border-top: 4px double var(--border-heavy);
+  border-bottom: 4px double var(--border-heavy);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+header h1 { font-size: 22px; letter-spacing: 0.1em; }
+header .updated { font-size: 11px; color: #666; font-family: var(--font-mono); }
+.layout { display: grid; grid-template-columns: 1fr 260px; gap: 0; min-height: calc(100vh - 80px); }
+main { padding: 20px 24px; border-right: 2px solid var(--border-light); }
+aside { padding: 16px 16px; background: #f3f0ea; }
+
+h2 { font-size: 14px; letter-spacing: 0.08em; border-bottom: 1px solid var(--border-heavy);
+     padding-bottom: 4px; margin: 20px 0 10px; }
+h2:first-child { margin-top: 0; }
+h3 { font-size: 13px; margin: 14px 0 6px; }
+
+/* アラートカード */
+.alert-card {
+  border-left: 3px solid var(--border-heavy);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: var(--new-bg);
+}
+.alert-card.status-change { background: var(--status-bg); }
+.alert-card .meta { font-size: 11px; color: #666; font-family: var(--font-mono); }
+.alert-card .title a { color: var(--text); text-decoration: none; font-weight: bold; }
+.alert-card .title a:hover { text-decoration: underline; }
+.badge {
+  display: inline-block; padding: 1px 6px; border-radius: 2px;
+  font-size: 10px; font-family: var(--font-mono); margin-right: 4px;
+}
+.badge.kokkai { background: #1a3a6b; color: #fff; }
+.badge.gian   { background: var(--shugiin); color: #fff; }
+.badge.shitsumon { background: var(--sangiin); color: #fff; }
+.badge.pubcom { background: #555; color: #fff; }
+.badge.kakugi { background: var(--kakugi); color: #fff; }
+.badge.new    { background: #b5540e; color: #fff; }
+.badge.status { background: #2a5f2a; color: #fff; }
+
+/* 議案パイプライン */
+.bill-tracker { margin-bottom: 12px; }
+.bill-tracker .bill-title {
+  font-size: 12px; margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pipeline {
+  display: flex; gap: 0; font-size: 10px; font-family: var(--font-mono);
+}
+.pipeline-step {
+  flex: 1; text-align: center; padding: 3px 2px;
+  border: 1px solid var(--border-light);
+  border-right: none; background: #ece9e1; color: #888;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pipeline-step:last-child { border-right: 1px solid var(--border-light); }
+.pipeline-step.cur {
+  background: var(--shugiin); color: #fff; font-weight: bold;
+}
+.pipeline-step.done { background: #c8d8c8; color: #444; }
+.pipeline-step.seiristu { background: #8b1a2d; color: #fff; font-weight: bold; }
+
+/* ダイジェスト */
+.digest-item { padding: 8px 0; border-bottom: 1px dashed var(--border-light); }
+.digest-item:last-child { border-bottom: none; }
+.digest-item .summary { font-size: 12px; color: #444; margin-top: 3px; }
+.digest-item .title a { font-size: 13px; color: var(--text); text-decoration: none; }
+.digest-item .title a:hover { text-decoration: underline; }
+
+/* サイドバー */
+.sidebar-section { margin-bottom: 20px; }
+.sidebar-section h3 {
+  font-size: 11px; letter-spacing: 0.06em; color: #666;
+  border-bottom: 1px solid var(--border-light); padding-bottom: 3px;
+  margin-bottom: 8px;
+}
+.kw-tag {
+  display: inline-block; margin: 2px;
+  padding: 2px 6px; background: #fff; border: 1px solid var(--border-light);
+  font-size: 11px; border-radius: 2px;
+}
+.source-status { font-size: 11px; font-family: var(--font-mono); margin-bottom: 3px; }
+.source-status .ok  { color: var(--shugiin); }
+.source-status .err { color: var(--sangiin); }
+
+/* 凡例 */
+.legend { display: flex; gap: 12px; font-size: 11px; flex-wrap: wrap; margin-bottom: 8px; }
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+footer {
+  border-top: 2px double var(--border-heavy);
+  padding: 8px 24px; font-size: 11px; color: #666;
+  font-family: var(--font-mono);
+  display: flex; gap: 20px; flex-wrap: wrap;
+}
+footer a { color: #666; }
+.empty-note { color: #999; font-size: 12px; font-style: italic; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>政策レーダー</h1>
+  <span class="updated">最終更新: 2026-06-16 20:49 JST</span>
+</header>
+
+<div class="layout">
+<main>
+
+<!-- 凡例 -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#1a3a6b"></div>国会会議録</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--shugiin)"></div>衆院提出（緑）</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--sangiin)"></div>参院提出（臙脂）</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--kakugi)"></div>閣議（朱）</div>
+</div>
+
+<!-- 即時アラート -->
+<h2>即時アラート（直近24時間）</h2>
+
+  
+  <div class="alert-card status-change">
+    <div class="meta">
+      <span class="badge gian">gian</span>
+      <span class="badge status">
+        状態変化
+      </span>
+      2026-06-16T20:49
+      ｜委員会付託 → 委員会可決
+    </div>
+    <div class="title">
+      <a href="https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/g221demo01.htm" target="_blank" rel="noopener">女性の健康の包括的な支援に関する法律案</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge kakugi">kakugi</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:49
+      
+    </div>
+    <div class="title">
+      <a href="https://www.kantei.go.jp/jp/kakugi/2026/kakugi-2026061001.html" target="_blank" rel="noopener">女性の健康の包括的な支援に関する基本計画について</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:49
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=demo00001&amp;Mode=0" target="_blank" rel="noopener">女性の健康に関するオンライン診療ガイドライン（案）に対する意見募集</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge shitsumon">shitsumon</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:49
+      
+    </div>
+    <div class="title">
+      <a href="https://www.shugiin.go.jp/internet/itdb_shitsumon.nsf/html/shitsumon/ademo01.htm" target="_blank" rel="noopener">フェムテック推進策及びオンライン診療の普及に関する質問主意書</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge gian">gian</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:49
+      
+    </div>
+    <div class="title">
+      <a href="https://www.sangiin.go.jp/japanese/joho1/kousei/gian/221/meisai/demo02.htm" target="_blank" rel="noopener">月経困難症治療の保険適用拡充に関する法律案</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge gian">gian</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:49
+      
+    </div>
+    <div class="title">
+      <a href="https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/g221demo01.htm" target="_blank" rel="noopener">女性の健康の包括的な支援に関する法律案</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge kokkai">kokkai</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:49
+      
+    </div>
+    <div class="title">
+      <a href="https://kokkai.ndl.go.jp/api/speech?speechID=demo-002" target="_blank" rel="noopener">[厚生労働委員会] 鈴木一郎（令和8年6月12日）</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge kokkai">kokkai</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:49
+      
+    </div>
+    <div class="title">
+      <a href="https://kokkai.ndl.go.jp/api/speech?speechID=demo-001" target="_blank" rel="noopener">[内閣委員会] 田中花子（令和8年6月10日）</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210726&amp;Mode=0" target="_blank" rel="noopener">国際海底ケーブルの防護等に関する検討会 報告書（案）</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210724&amp;Mode=0" target="_blank" rel="noopener">地方自治法施行令の一部を改正する政令（案）に対する意見募集</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260086&amp;Mode=0" target="_blank" rel="noopener">医薬品、医療機器等の品質、有効性及び安全性の確保等に関する法律施行規則第二百十六条の二第一項の規定に基づき厚生労働大臣が指定する医薬品及び期間の一部を改正する件（案）に関する御意見の募集について</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=620126015&amp;Mode=0" target="_blank" rel="noopener">エネルギーの使用の合理化及び非化石エネルギーへの転換等に関する法律施行令の一部を改正する政令案に対する意見公募要領</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260813&amp;Mode=0" target="_blank" rel="noopener">御岳登山鉄道株式会社の鉄道事業の旅客運賃上限変更認可申請について</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=195260018&amp;Mode=0" target="_blank" rel="noopener">「調達におけるネイチャーポジティブの実践のためのガイドライン（案）」に関する意見募集（パブリック・コメント）について</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=595226025&amp;Mode=0" target="_blank" rel="noopener">旧簡易ガスみなしガス小売事業者の指定旧供給地点の指定の解除（関東経済産業局所管分）に対する意見の募集について</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260714&amp;Mode=0" target="_blank" rel="noopener">マンションの管理の適正化の推進に関する法律施行規則及び長期優良住宅の普及の促進に関する法律施行規則の一部を改正する省令案に関する意見募集について</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260088&amp;Mode=0" target="_blank" rel="noopener">送出労働者に対する不合理な待遇の禁止等に関する指針の一部を改正する件（案）に関する御意見の募集について</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=550004371&amp;Mode=0" target="_blank" rel="noopener">「外国人の育成就労の適正な実施及び育成就労外国人の保護に関する法律施行規則の規定に基づき林業分野に特有の事情に鑑みて告示で定める基準等の一部を改正する告示案」についての意見・情報の募集について</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210725&amp;Mode=0" target="_blank" rel="noopener">「電気通信役務の安全・信頼性の確保に係るモニタリングの基本方針（案）」及び「電気通信役務の安全・信頼性の確保に係るモニタリングの年次計画（令和８年度）（案）」に対する意見募集</a>
+    </div>
+  </div>
+  
+  <div class="alert-card ">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge new">
+        新着
+      </span>
+      2026-06-16T20:46
+      
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210722&amp;Mode=0" target="_blank" rel="noopener">令和7年度電波の利用状況調査に係る電波の有効利用の程度の評価結果（案）に対する意見募集（各種無線システム及び公共業務用無線局）</a>
+    </div>
+  </div>
+  
+
+
+<!-- 議案トラッカー -->
+<h2>議案トラッカー</h2>
+
+  
+  <div class="bill-tracker">
+    <div class="bill-title">
+      <span class="badge shitsumon">参議</span>
+      <a href="https://www.sangiin.go.jp/japanese/joho1/kousei/gian/221/meisai/demo02.htm" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none;">月経困難症治療の保険適用拡充に関する法律案</a>
+    </div>
+    <div class="pipeline">
+      
+      
+        
+          <div class="pipeline-step done">提出</div>
+        
+      
+        
+          <div class="pipeline-step done">委員会付託</div>
+        
+      
+        
+          <div class="pipeline-step done">委員会可決</div>
+        
+      
+        
+          <div class="pipeline-step done">本会議可決</div>
+        
+      
+        
+          <div class="pipeline-step done">他院送付</div>
+        
+      
+        
+          <div class="pipeline-step seiristu">成立</div>
+        
+      
+    </div>
+  </div>
+  
+
+
+<!-- 日次ダイジェスト -->
+<h2>直近ダイジェスト（AI 関連度判定）</h2>
+
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge kakugi">kakugi</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-10
+    </div>
+    <div class="title">
+      <a href="https://www.kantei.go.jp/jp/kakugi/2026/kakugi-2026061001.html" target="_blank" rel="noopener">女性の健康の包括的な支援に関する基本計画について</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-01
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=demo00001&amp;Mode=0" target="_blank" rel="noopener">女性の健康に関するオンライン診療ガイドライン（案）に対する意見募集</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge shitsumon">shitsumon</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-05-20
+    </div>
+    <div class="title">
+      <a href="https://www.shugiin.go.jp/internet/itdb_shitsumon.nsf/html/shitsumon/ademo01.htm" target="_blank" rel="noopener">フェムテック推進策及びオンライン診療の普及に関する質問主意書</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge gian">gian</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-04-01
+    </div>
+    <div class="title">
+      <a href="https://www.sangiin.go.jp/japanese/joho1/kousei/gian/221/meisai/demo02.htm" target="_blank" rel="noopener">月経困難症治療の保険適用拡充に関する法律案</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge gian">gian</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-03-10
+    </div>
+    <div class="title">
+      <a href="https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/honbun/g221demo01.htm" target="_blank" rel="noopener">女性の健康の包括的な支援に関する法律案</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge kokkai">kokkai</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-12
+    </div>
+    <div class="title">
+      <a href="https://kokkai.ndl.go.jp/api/speech?speechID=demo-002" target="_blank" rel="noopener">[厚生労働委員会] 鈴木一郎（令和8年6月12日）</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge kokkai">kokkai</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-10
+    </div>
+    <div class="title">
+      <a href="https://kokkai.ndl.go.jp/api/speech?speechID=demo-001" target="_blank" rel="noopener">[内閣委員会] 田中花子（令和8年6月10日）</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-13
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210726&amp;Mode=0" target="_blank" rel="noopener">国際海底ケーブルの防護等に関する検討会 報告書（案）</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-13
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210724&amp;Mode=0" target="_blank" rel="noopener">地方自治法施行令の一部を改正する政令（案）に対する意見募集</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-15
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260086&amp;Mode=0" target="_blank" rel="noopener">医薬品、医療機器等の品質、有効性及び安全性の確保等に関する法律施行規則第二百十六条の二第一項の規定に基づき厚生労働大臣が指定する医薬品及び期間の一部を改正する件（案）に関する御意見の募集について</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-15
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=620126015&amp;Mode=0" target="_blank" rel="noopener">エネルギーの使用の合理化及び非化石エネルギーへの転換等に関する法律施行令の一部を改正する政令案に対する意見公募要領</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-15
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260813&amp;Mode=0" target="_blank" rel="noopener">御岳登山鉄道株式会社の鉄道事業の旅客運賃上限変更認可申請について</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-15
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=195260018&amp;Mode=0" target="_blank" rel="noopener">「調達におけるネイチャーポジティブの実践のためのガイドライン（案）」に関する意見募集（パブリック・コメント）について</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-15
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=595226025&amp;Mode=0" target="_blank" rel="noopener">旧簡易ガスみなしガス小売事業者の指定旧供給地点の指定の解除（関東経済産業局所管分）に対する意見の募集について</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-16
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=155260714&amp;Mode=0" target="_blank" rel="noopener">マンションの管理の適正化の推進に関する法律施行規則及び長期優良住宅の普及の促進に関する法律施行規則の一部を改正する省令案に関する意見募集について</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-16
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=495260088&amp;Mode=0" target="_blank" rel="noopener">送出労働者に対する不合理な待遇の禁止等に関する指針の一部を改正する件（案）に関する御意見の募集について</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-16
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=550004371&amp;Mode=0" target="_blank" rel="noopener">「外国人の育成就労の適正な実施及び育成就労外国人の保護に関する法律施行規則の規定に基づき林業分野に特有の事情に鑑みて告示で定める基準等の一部を改正する告示案」についての意見・情報の募集について</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-16
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210725&amp;Mode=0" target="_blank" rel="noopener">「電気通信役務の安全・信頼性の確保に係るモニタリングの基本方針（案）」及び「電気通信役務の安全・信頼性の確保に係るモニタリングの年次計画（令和８年度）（案）」に対する意見募集</a>
+    </div>
+    
+  </div>
+  
+  <div class="digest-item">
+    <div class="meta">
+      <span class="badge pubcom">pubcom</span>
+      <span class="badge" style="background:#888;color:#fff;">L</span>
+      2026-06-16
+    </div>
+    <div class="title">
+      <a href="https://public-comment.e-gov.go.jp/servlet/Public?CLASSNAME=PCMMSTDETAIL&amp;id=145210722&amp;Mode=0" target="_blank" rel="noopener">令和7年度電波の利用状況調査に係る電波の有効利用の程度の評価結果（案）に対する意見募集（各種無線システム及び公共業務用無線局）</a>
+    </div>
+    
+  </div>
+  
+
+
+</main>
+
+<aside>
+  <!-- 監視キーワード -->
+  <div class="sidebar-section">
+    <h3>L1 監視キーワード</h3>
+    
+    <span class="kw-tag">月経困難症</span>
+    
+    <span class="kw-tag">低用量ピル</span>
+    
+    <span class="kw-tag">フェムテック</span>
+    
+    <span class="kw-tag">プレコンセプションケア</span>
+    
+    <span class="kw-tag">オンライン診療</span>
+    
+  </div>
+
+  <div class="sidebar-section">
+    <h3>L2 同義語（主要）</h3>
+    
+    <div style="font-size:11px;margin-bottom:4px;">
+      <strong>月経困難症</strong><br>
+      生理痛、月経痛、子宮内膜症
+    </div>
+    
+    <div style="font-size:11px;margin-bottom:4px;">
+      <strong>低用量ピル</strong><br>
+      OC、LEP、経口避妊薬
+    </div>
+    
+    <div style="font-size:11px;margin-bottom:4px;">
+      <strong>フェムテック</strong><br>
+      女性向けヘルスケアテクノロジー、女性健康テック、Femtech
+    </div>
+    
+    <div style="font-size:11px;margin-bottom:4px;">
+      <strong>プレコンセプションケア</strong><br>
+      妊娠前ケア、妊孕性、妊活支援
+    </div>
+    
+    <div style="font-size:11px;margin-bottom:4px;">
+      <strong>オンライン診療</strong><br>
+      遠隔診療、電話診療、情報通信機器を用いた診療
+    </div>
+    
+  </div>
+
+  <!-- データソース状態 -->
+  <div class="sidebar-section">
+    <h3>データソース 最終取得</h3>
+    
+    <div class="source-status">
+      <span class="ok">●</span>
+      国会会議録 2026-06-16T20:49
+    </div>
+    
+    <div class="source-status">
+      <span class="ok">●</span>
+      議案 2026-06-16T20:49
+    </div>
+    
+    <div class="source-status">
+      <span class="ok">●</span>
+      質問主意書 2026-06-16T20:49
+    </div>
+    
+    <div class="source-status">
+      <span class="ok">●</span>
+      パブコメ 2026-06-16T20:49
+    </div>
+    
+    <div class="source-status">
+      <span class="ok">●</span>
+      閣議決定 2026-06-16T20:49
+    </div>
+    
+  </div>
+</aside>
+</div>
+
+<footer>
+  <span>最終更新: 2026-06-16 20:49 JST</span>
+  <a href="https://kokkai.ndl.go.jp/" target="_blank" rel="noopener">国会会議録</a>
+  <a href="https://www.shugiin.go.jp/internet/itdb_gian.nsf/html/gian/menu.htm" target="_blank" rel="noopener">衆議院議案</a>
+  <a href="https://www.sangiin.go.jp/japanese/joho1/kousei/gian/221/gian.htm" target="_blank" rel="noopener">参議院議案</a>
+  <a href="https://public-comment.e-gov.go.jp/" target="_blank" rel="noopener">e-Govパブコメ</a>
+  <a href="https://www.kantei.go.jp/jp/kakugi/index.html" target="_blank" rel="noopener">閣議決定</a>
+</footer>
+
+</body>
+</html>
